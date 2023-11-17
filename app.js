@@ -47,7 +47,7 @@ const getRandomPhoto = (motorbike) => {
     let promise = fetch(urlWithQuery)
                 .then(res => {
                     if(res.ok) {
-                        res.json();
+                        return res.json();
                     } else {                      
                         return Promise.reject(res);
                     }
@@ -69,6 +69,7 @@ const getWallpaper = () => {
         let bike = getRandomBike(bike_list);
         let promise = getRandomPhoto(bike);
         promise.then(data => {
+            console.log(data)
             if(data) {
                 // let wallpaper = document.getElementById('wallpaper');
                 // wallpaper.style.backgroundImage = `url(${data.urls.full})`;
