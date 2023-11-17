@@ -1,0 +1,16 @@
+{
+    "manifest_version": 3, 
+    "name": "Motoholic",
+    "description": "The most popular movies and TV shows in your default tab. Includes ratings, summaries and the ability to watch trailers.",
+    "version": "1",
+    "author": "Demonic",
+    "chrome_url_overrides": 
+    {  
+        "newtab": "index.html"
+    },
+    "permissions": 
+    [
+        "activeTab",
+        "storage"
+    ]
+}
