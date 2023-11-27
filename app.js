@@ -2,8 +2,10 @@ const access_key = 'W1S-wCk5YH80q3CJBRr2wFdUjL8cki-qiHD91BPHdXU';
 
 const unsplashBaseUrl = 'https://api.unsplash.com'
 
+const date_time_format = 'YYYY-MM-DD, HH:mm:ss';
+
 const bike_list = [
-    'BWM S1000RR',
+    'BMW S1000RR',
     'Ducati panigale',
     'ducati superleggera v4',
     'motorcycle',
@@ -13,14 +15,15 @@ const bike_list = [
     'Yamaha MT10',
     'Yamaha MT09',
     'Yamaha MT07',
-    'Honda cbr',
+    'Honda motorcycle',
     'KTM Duke',
     'Ninja H2',
-    'BWM motorcycle'
+    'BWM motorcycle',
+    'Triumph motorcycle',
+    'kawasaki motorcycle'
 ]
 
 if(localStorage.getItem("rate_limit_exceeded") == undefined) {
-    console.log('reset')
     localStorage.setItem("rate_limit_exceeded", false);
 };
 
@@ -55,31 +58,38 @@ const getRandomPhoto = (motorbike) => {
                 .catch(error => {
                     if(error.status == 403) {
                         localStorage.setItem("rate_limit_exceeded", true);
-                        setTimeout(() => {
-                            localStorage.setItem("rate_limit_exceeded", false);
-                          }, 30 * 60 * 1000);   // 30 mins
+                        var timestamp = moment.utc().format(date_time_format);
+                        localStorage.setItem("rate_limit_exceeded_time", timestamp);
                     }
                 });
     return promise;
 }
-
 const getWallpaper = () => {
     let rate_limit_exceeded = localStorage.getItem("rate_limit_exceeded");
-    if(rate_limit_exceeded == 'false') {
-        let bike = getRandomBike(bike_list);
-        let promise = getRandomPhoto(bike);
-        promise.then(data => {
-            console.log(data)
-            if(data) {
-                // let wallpaper = document.getElementById('wallpaper');
-                // wallpaper.style.backgroundImage = `url(${data.urls.full})`;
-                let virtualImg = document.getElementById('virtual-wallpaper');
-                virtualImg.src = data.urls.full;
+    if(rate_limit_exceeded == 'true') {
+        let timestamp_str = localStorage.getItem("rate_limit_exceeded_time");
+        if(timestamp_str) {
+            let timestamp = moment.utc(timestamp_str, date_time_format);
+            let now = moment.utc();
+            if(now.isBefore(timestamp.add(65, 'minutes'))) {
+                console.log('api rate limit exceeded');
+                return;
+            } else {
+                localStorage.setItem("rate_limit_exceeded", false);
+                localStorage.removeItem("rate_limit_exceeded_time");
             }
-        });
-    } else {
-        console.log('api rate limit exceeded');
+        } else {
+            localStorage.setItem("rate_limit_exceeded", false);
+        }     
     }
+    let bike = getRandomBike(bike_list);
+    let promise = getRandomPhoto(bike);
+    promise.then(data => {
+        if(data) {
+            let virtualImg = document.getElementById('virtual-wallpaper');
+            virtualImg.src = data.urls.full;
+        }
+    });
 }
 
 const onImgLoaded = () => {
